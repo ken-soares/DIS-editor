@@ -84,7 +84,7 @@ struct editorConfig{
 	erow *row;
 	int dirty;
 	char *filename;
-	char statusmsg[80];
+	char statusmsg[128];
 	time_t statusmsg_time;
 	struct editorSyntax *syntax;
 	struct termios orig_termios;
@@ -650,6 +650,10 @@ void editorFind(){
 	}
 }
 
+void editorGotoLine(){
+	// TODO
+}
+
 void editorSave(){
 	if(E.filename == NULL){
 		E.filename = editorPrompt("Save as: %s_ (ESC to cancel)", NULL);
@@ -839,6 +843,10 @@ void editorProcessKeypress(){
 
 		case CTRL_KEY('d'):
 			editorDelRow(E.cy);
+			break;
+
+		case CTRL_KEY('o'):
+			editorGotoLine();
 			break;
 
 		case HOME_KEY:
@@ -1068,9 +1076,9 @@ void editorDisplayMore(){
 	char buffer[BUF_SIZE];
 	strftime(buffer,BUF_SIZE,"%H:%M:%S", pTime);
 
-	float test = (float)(E.cy + 1) / E.numrows * 100;
-	editorSetStatusMessage("current time: %s -- current position in doc %.2f%%",
-			buffer,test);
+	float percentage = (float)(E.cy + 1) / E.numrows * 100;
+	editorSetStatusMessage("Ctrl-s = Save, Ctrl-f = Search, Ctrl-d = delete line | current time: %s | pos. in file %.2f%%",
+			buffer,percentage);
 
 }
 
@@ -1101,7 +1109,7 @@ int main(int argc, char **argv){
 		editorOpen(argv[1]);
 	}
 
-	editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit | Ctrl-F = find");
+	editorSetStatusMessage("HELP: Ctrl-s = Save | Ctrl-g = more info");
 
 	while(1){
 		editorRefreshScreen();
